@@ -1,11 +1,7 @@
 package practice.leetcode;
 
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.valueOf;
 
@@ -64,4 +60,30 @@ public class StringOp {
         }
         return true;
     }
+
+    public static String amazonOccurrenceCalcString(String s){
+        Map<Character,Integer> m = new LinkedHashMap<Character, Integer>();
+
+        for(int i=0;i<s.length();i++){
+            Character c = s.charAt(i);
+            if(m.containsKey(c)){
+                int count = m.get(c);
+                count++;
+                m.put(c,count);
+            } else {
+                m.put(c,1);
+            }
+        }
+
+        String op = "";
+
+        for(Character c:m.keySet()){
+            op += c.toString() + m.get(c).toString();
+            //vanessa@e-walkwater.com
+        }
+        return op;
+    }
+
+
+
 }
