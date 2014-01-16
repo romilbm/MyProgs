@@ -9,7 +9,7 @@ class CabFinder implements CabStatusListener {
     private CabApp cabApp;
     PriorityQueue<KCCab> remainingCabs;
     PriorityQueue<KCCab> maxNearestCabs;
-    public static final int RADIUS = 100;
+    public static final double RADIUS = 35;
     private int maxCabs;
 
     /**
@@ -22,6 +22,7 @@ class CabFinder implements CabStatusListener {
         this.cabApp = app;
         this.maxCabs = maxCabs;
 
+        //reverse ordering
         Comparator<KCCab> c = new Comparator<KCCab>() {
             @Override
             public int compare(KCCab o1, KCCab o2) {
@@ -53,10 +54,19 @@ class CabFinder implements CabStatusListener {
         if(distance < RADIUS && maxNearestCabs.size() <= maxCabs){
             if(maxNearestCabs.size()==maxCabs
                     && distance<maxNearestCabs.peek().getDistanceFromUser()){
-                maxNearestCabs.poll();
+                //pop out the highest amongst the distances from nearest
+                KCCab ejected = maxNearestCabs.poll();
+                //put the higher one in remaining
+                remainingCabs.add(ejected);
+                maxNearestCabs.add(cab);
+                return true;
+            } else if(maxNearestCabs.size()< maxCabs){
+                //add the lower one to the nearest
+                maxNearestCabs.add(cab);
+                return true;
             }
-            maxNearestCabs.add(cab);
-            return true;
+
+            return false;
         }
         return false;
     }
@@ -67,9 +77,9 @@ class CabFinder implements CabStatusListener {
      * @return An unordered list of the nearest cabs.
      */
     public Cab[] getNearestCabs() {
-        Cab [] c = new Cab[maxCabs];
+        Cab [] c = new Cab[maxNearestCabs.size()];
         Iterator<KCCab> iterator = maxNearestCabs.iterator();
-        for(int i=0; i<maxCabs;i++){
+        for(int i=0; i<maxNearestCabs.size();i++){
             KCCab cab = iterator.next();
             c[i] = cab;
         }
@@ -119,7 +129,6 @@ class CabFinder implements CabStatusListener {
      * @isAvailable true if the cab is now available, false otherwise
      */
     public void onCabAvailabilityChanged(Cab cab, boolean isAvailable) {
-
         KCCab kcCab = new KCCab(cab, cabApp.getUserPosition());
         kcCab.changeAvailability(isAvailable);
 
@@ -128,12 +137,10 @@ class CabFinder implements CabStatusListener {
         } else {
             remainingCabs.remove(kcCab);
         }
-
     }
 
     public static void main(String args []){
         List<KCCab> cabList = new ArrayList<KCCab>();
-
 
         for(int i=1; i<=20; i++){
             Random generator1 = new Random();
@@ -142,23 +149,55 @@ class CabFinder implements CabStatusListener {
             int y = generator2.nextInt(50);
             cabList.add(new KCCab(i,true,new Position(x,y)));
         }
+        //2 cabs which are near
+        cabList.get(0).moveTo(new Position(1,1));
+        cabList.get(1).moveTo(new Position(2,2));
+        //2 cabs which are far
+        cabList.get(2).moveTo(new Position(50,50));
+        cabList.get(3).moveTo(new Position(51,51));
 
-        getAllDistances(cabList);
 
         KCCabApp kcCabApp = new KCCabApp(cabList, new Position(0,0));
-
         CabFinder myCabFinder = new CabFinder();
         myCabFinder.initialize(kcCabApp,5);
 
-        Cab [] nearestCabs = myCabFinder.getNearestCabs();
+        Cab [] nearestCabs1 = myCabFinder.getNearestCabs();
 
+        getAllDistances(cabList);
         System.out.println();
+        printNearestCabs(nearestCabs1);
 
+        //a cab which was near moved and is still near is still near
+        myCabFinder.onCabPositionChanged(new KCCab(1, true, new Position(3,3)));
+        Cab [] nearestCabs2 = myCabFinder.getNearestCabs();
+        System.out.println();
+        printNearestCabs(nearestCabs2);
+
+        //a cab which was near moved and is now far
+        myCabFinder.onCabPositionChanged(new KCCab(2, true, new Position(52,52)));
+        Cab [] nearestCabs3 = myCabFinder.getNearestCabs();
+        System.out.println();
+        printNearestCabs(nearestCabs3);
+
+        //a cab which was far moved and is now near
+        myCabFinder.onCabPositionChanged(new KCCab(3, true, new Position(1,1)));
+        Cab [] nearestCabs4 = myCabFinder.getNearestCabs();
+        System.out.println();
+        printNearestCabs(nearestCabs4);
+
+        //a cab which was far moved and is still far
+        myCabFinder.onCabPositionChanged(new KCCab(5, true, new Position(50,50)));
+        Cab [] nearestCabs5 = myCabFinder.getNearestCabs();
+        System.out.println();
+        printNearestCabs(nearestCabs5);
+
+    }
+
+    private static void printNearestCabs(Cab[] nearestCabs) {
         for(Cab c: nearestCabs){
             KCCab cab = new KCCab(c, new Position(0,0));
             System.out.println(cab.getID() + "=" + cab.getDistanceFromUser());
         }
-
     }
 
     private static void getAllDistances(List<KCCab> cabList) {

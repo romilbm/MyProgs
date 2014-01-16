@@ -27,13 +27,8 @@ public class KCCab implements Cab,Comparable<KCCab>{
 
     public void moveTo(Position newPosition){
         cabPosition = newPosition;
-        this.distanceFromUser = calcDistanceFromUser();
     }
 
-    public void setUserPosition(Position userPosition){
-        this.userPosition = userPosition;
-        this.distanceFromUser = calcDistanceFromUser();
-    }
     public void changeAvailability(boolean availability){
         this.availability = availability;
     }
@@ -56,8 +51,8 @@ public class KCCab implements Cab,Comparable<KCCab>{
 
     private double calcDistanceFromUser(){
         return Math.sqrt(
-                ((cabPosition.x - userPosition.x)^2)
-               +((cabPosition.y - userPosition.y)^2)
+                Math.pow((cabPosition.x - userPosition.x), 2)
+               +Math.pow((cabPosition.y - userPosition.y), 2)
         );
     }
 
@@ -74,7 +69,6 @@ public class KCCab implements Cab,Comparable<KCCab>{
         KCCab cab = (KCCab) obj;
 
         return (this.id == cab.getID());
-
     }
 
     @Override
@@ -84,7 +78,6 @@ public class KCCab implements Cab,Comparable<KCCab>{
         return code;
     }
 
-    //reverse ordering
     @Override
     public int compareTo(KCCab cab) {
         if(this.distanceFromUser < cab.distanceFromUser){
