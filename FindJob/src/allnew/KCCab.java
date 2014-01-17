@@ -1,18 +1,19 @@
-package amazon.codingExercise;
+package allnew;
 
 /**
- * An implementation of Cab.
- * It has methods which make it easy to setup and test.
- * Created by romil on 1/15/14.
+ * Created by romil on 1/16/14.
  */
+//An implementation of Cab.
+//It contains methods that make it easier to setup and test.
+//It implements comparable because we want to be comparing which cabs are nearest to user.
 public class KCCab implements Cab,Comparable<KCCab>{
-
     private final int id;
     private boolean availability;
     private Position cabPosition;
     private Position userPosition;
     private double distanceFromUser;
 
+    //helps setup test instances of KCCab
     public KCCab(int id, boolean availability, Position cabPosition){
         this.id = id;
         this.availability = availability;
@@ -27,6 +28,16 @@ public class KCCab implements Cab,Comparable<KCCab>{
         this.distanceFromUser = calcDistanceFromUser();
     }
 
+    public double getDistanceFromUser(){
+        return distanceFromUser;
+    }
+
+    private double calcDistanceFromUser(){
+        return Math.sqrt(
+                Math.pow((cabPosition.x - userPosition.x), 2)
+                        +Math.pow((cabPosition.y - userPosition.y), 2)
+        );
+    }
     public void moveTo(Position newPosition){
         cabPosition = newPosition;
     }
@@ -35,27 +46,16 @@ public class KCCab implements Cab,Comparable<KCCab>{
         this.availability = availability;
     }
 
-    public int getID() {
+    public int getID(){
         return id;
     }
 
-    public Position getCabPosition() {
+    public Position getCabPosition(){
         return cabPosition;
     }
 
-    public boolean isAvailable() {
+    public boolean isAvailable(){
         return availability;
-    }
-
-    public double getDistanceFromUser(){
-        return distanceFromUser;
-    }
-
-    private double calcDistanceFromUser(){
-        return Math.sqrt(
-                Math.pow((cabPosition.x - userPosition.x), 2)
-               +Math.pow((cabPosition.y - userPosition.y), 2)
-        );
     }
 
     @Override
@@ -69,7 +69,6 @@ public class KCCab implements Cab,Comparable<KCCab>{
         }
 
         KCCab cab = (KCCab) obj;
-
         return (this.id == cab.getID());
     }
 
@@ -80,15 +79,15 @@ public class KCCab implements Cab,Comparable<KCCab>{
         return code;
     }
 
+    //normal compare for all cabs considering their availability.
     @Override
-    public int compareTo(KCCab cab) {
-
+    public int compareTo(KCCab cab){
         if(this.isAvailable() == cab.isAvailable()){
-            if(this.distanceFromUser < cab.distanceFromUser){
+            if(this.distanceFromUser < cab.getDistanceFromUser()){
                 return -1;
-            } else if(this.distanceFromUser == cab.distanceFromUser){
+            } else if (this.distanceFromUser == cab.getDistanceFromUser()) {
                 return 0;
-            } else{
+            } else {
                 return 1;
             }
         } else {
@@ -98,7 +97,5 @@ public class KCCab implements Cab,Comparable<KCCab>{
                 return 1;
             }
         }
-
-
     }
 }
