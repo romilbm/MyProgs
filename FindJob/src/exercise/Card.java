@@ -31,7 +31,7 @@ public class Card implements Comparable<Card>{
     /**
      * A list of all possible suits.
      */
-    private ArrayList<String> suits = new ArrayList<String>(Arrays.asList("Hearts", " Spades", "Diamonds", "Clubs"));
+    private ArrayList<String> suits = new ArrayList<String>(Arrays.asList("Hearts", "Spades", "Diamonds", "Clubs"));
 
     /**
      * A list of all possible ranks.

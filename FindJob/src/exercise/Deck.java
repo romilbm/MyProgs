@@ -1,6 +1,12 @@
 package exercise;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Arrays;
 
 /**
  * The Deck class
@@ -229,7 +235,7 @@ public class Deck implements Comparator<Card>{
     }
 
     private boolean isSuitValid(String suit){
-        List<String> suitList = Arrays.asList("diamonds", "hearts", "spade", "club");
+        List<String> suitList = Arrays.asList("diamonds", "hearts", "spades", "clubs");
         if(!suitList.contains(suit.toLowerCase())){
             return false;
         }
