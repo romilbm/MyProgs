@@ -5,9 +5,11 @@ import org.apache.commons.lang3.tuple.MutablePair;
 public class Stringfun {
 
     private int a;
+    private int[] cache;
 
     public Stringfun(int a){
         this.a = a;
+        cache = new int[a];
     }
 
     public Stringfun(Stringfun in){
@@ -46,6 +48,13 @@ public class Stringfun {
                 new int[] {},
                 new int[] {}
         };
+
+        String s1 = "abc";
+        System.out.println("Test subs: " + s1.substring(0,1));
+
+        for(int i=0; i<=s1.length(); i++){
+            System.out.println(s1.substring(0,i) + "d" + s1.substring(i));
+        }
 
 
 //        System.out.println(mat.length);
