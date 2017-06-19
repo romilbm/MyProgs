@@ -1,9 +1,10 @@
 package experiments.goHealth.test;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import static experiments.goHealth.SecretSanta.generateAssignments;
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by romil on 2/7/14.
