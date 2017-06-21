@@ -1,6 +1,6 @@
 package experiments.goHealth.test;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import static experiments.goHealth.SecretSanta.generateAssignments;
 
