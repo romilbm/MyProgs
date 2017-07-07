@@ -26,7 +26,9 @@ public class AllOne {
 
     private void insertBeforeHead(Node n) {
         if (head == null) {
-            throw new IllegalStateException("Cannot insert before head when it is null");
+            tail = n;
+            head = n;
+            return;
         }
 
         head.prev = n;
@@ -50,7 +52,9 @@ public class AllOne {
 
     private void insertBeforeTail(Node n) {
         if (tail == null) {
-            throw new IllegalStateException("Cannot insert before tail when it is null");
+            tail = n;
+            head = n;
+            return;
         }
         tail.prev.next = n;
         n.prev = tail.prev;
@@ -94,14 +98,8 @@ public class AllOne {
             n = map.get(key);
         }
 
-        remove(n);
         n.val++;
-
-        if (n.val > head.val) {
-            insertBeforeHead(n);
-        } else {
-            insertBeforeTail(n);
-        }
+        removeAndReinsert(n);
     }
 
     /** Decrements an existing key by 1. If Key's value is 1, remove it from the data structure. */
@@ -113,15 +111,20 @@ public class AllOne {
         Node n = map.get(key);
 
         n.val--;
-        remove(n);
         if (n.val == 0) {
             map.remove(key);
+            remove(n);
             return;
         }
+        removeAndReinsert(n);
+    }
 
-        if (n.val < tail.val) {
+    private void removeAndReinsert(Node n) {
+        remove(n);
+
+        if (tail != null && n.val <= tail.val) {
             insertAfterTail(n);
-        } else if (n.val > head.val){
+        } else if (head != null && n.val >= head.val){
             insertBeforeHead(n);
         } else {
             insertBeforeTail(n);
@@ -155,31 +158,44 @@ public class AllOne {
 
     public static void main(String[] args) {
         AllOne allOne = new AllOne();
-        allOne.inc("h");
+//        allOne.inc("h");
+//        allOne.printState();
+//        allOne.inc("g");
+//        allOne.printState();
+//        allOne.inc("h");
+//        allOne.printState();
+//        allOne.inc("h");
+//        allOne.printState();
+//        System.out.println(" ==== " + allOne.getMaxKey());
+//        allOne.inc("l");
+//        allOne.printState();
+//        allOne.inc("c");
+//        allOne.printState();
+//        allOne.inc("l");
+//        allOne.printState();
+//        allOne.dec("h");
+//        allOne.printState();
+//        allOne.dec("h");
+//        allOne.printState();
+//        allOne.inc("l");
+//        allOne.printState();
+//        allOne.inc("c");
+//        allOne.printState();
+//        allOne.inc("c");
+//        allOne.printState();
+        allOne.inc("hello");
         allOne.printState();
-        allOne.inc("g");
+        allOne.inc("hello");
         allOne.printState();
-        allOne.inc("h");
+
+        System.out.println(allOne.getMaxKey());
+        System.out.println(allOne.getMinKey());
+
+        allOne.inc("leet");
         allOne.printState();
-        allOne.inc("h");
-        allOne.printState();
-        System.out.println(" ==== " + allOne.getMaxKey());
-        allOne.inc("l");
-        allOne.printState();
-        allOne.inc("c");
-        allOne.printState();
-        allOne.inc("l");
-        allOne.printState();
-        allOne.dec("h");
-        allOne.printState();
-        allOne.dec("h");
-        allOne.printState();
-        allOne.inc("l");
-        allOne.printState();
-        allOne.inc("c");
-        allOne.printState();
-        allOne.inc("c");
-        allOne.printState();
-        System.out.println(" ==== " + allOne.getMaxKey());
+
+        System.out.println(allOne.getMaxKey());
+        System.out.println(allOne.getMinKey());
+
     }
 }
