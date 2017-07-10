@@ -41,17 +41,26 @@ public class UpsideDownBinaryTree {
         return curr;
     }
 
-    public TreeNode upsideDownBinaryTree2(TreeNode root) {
-        if(root == null || root.left == null) {
-            return root;
-        }
+    public TreeNode upsideDownBinaryTree2(TreeNode n) {
+        if (n.left == null) return n;
+        TreeNode parent = n.left;
+        TreeNode root = upsideDownBinaryTree(parent);
+        parent.right = n;
+        parent.left = n.right;
+        n.right = null;
+        n.left = null;
+        return root;
 
-        TreeNode newRoot = upsideDownBinaryTree2(root.left);
-        root.left.left = root.right;   // node 2 left children
-        root.left.right = root;         // node 2 right children
-        root.left = null;
-        root.right = null;
-        return newRoot;
+//        if(root.left == null) {
+//            return root;
+//        }
+//
+//        TreeNode newRoot = upsideDownBinaryTree2(root.left);
+//        root.left.left = root.right;   // node 2 left children
+//        root.left.right = root;         // node 2 right children
+//        root.left = null;
+//        root.right = null;
+//        return newRoot;
     }
 
     public static void main(String[] args) {
@@ -64,13 +73,13 @@ public class UpsideDownBinaryTree {
         TreeNode n6 = new TreeNode(6);
 
         n1.left = n2;
-        n1.right = n3;
+//        n1.right = n3;
         n2.left = n4;
-        n2.right = n5;
+//        n2.right = n5;
         n4.left = n6;
 
-        TreeNode n =u.upsideDownBinaryTree(n1);
-//        TreeNode nA =u.upsideDownBinaryTree2(n1);
-        System.out.println();
+//        TreeNode n =u.upsideDownBinaryTree(n1);
+        TreeNode nA =u.upsideDownBinaryTree2(n1);
+        System.out.println(nA);
     }
 }
