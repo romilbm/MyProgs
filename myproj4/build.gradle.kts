@@ -13,6 +13,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("org.assertj:assertj-core:3.24.2")
+    implementation("com.github.librepdf:openpdf:1.3.29")
 }
 
 tasks.test {
@@ -20,7 +21,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(16)
+    jvmToolchain(17)
 }
 
 application {
