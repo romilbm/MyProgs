@@ -56,7 +56,7 @@ class SalaryCalculator {
         daysInMonth: Int,
         path: String,
     ) {
-        val pdfOutputFile = FileOutputStream("$path/attendance-detail-${Month.of(month).name}-$year.pdf")
+        val pdfOutputFile = FileOutputStream("$path/attendance-detail-${Month.of(month).name}-$year-V$VERSION.pdf")
         val myPDFDoc = Document(
             PageSize.A4.rotate(),
             5f,   // left
@@ -135,14 +135,25 @@ class SalaryCalculator {
         fileName: String,
         month: Int,
         year: Int,
-    ): Map<Int, Map<Int, List<LineRecord>>> {
+    ): Map<Int, Pair<Map<Int, List<LineRecord>>, Map<Int, List<LineRecord>>>> {
         val lineRecords = getContentsOfFile(fileName, month, year)
         val empRecords = lineRecords.groupBy { it.empNo }
-        return empRecords.keys.associateWith { empRecords[it]!!.groupBy { record -> record.timeRecorded.dayOfMonth } }
+        return empRecords.keys.associateWith {
+            Pair(
+                empRecords[it]!!
+                    .filter { record -> record.timeType == TimeType.IN }
+                    .groupBy { record -> record.timeRecorded.dayOfMonth },
+                empRecords[it]!!
+                    .filter { record -> record.timeType == TimeType.OUT }
+                    .groupBy { record -> record.timeRecorded.dayOfMonth }
+            )
+        }
+
+//        return empRecords.keys.associateWith { empRecords[it]!!.groupBy { record -> record.timeRecorded.dayOfMonth } }
     }
 
     private fun getAttendanceDetailsToPrint(
-        empRecords: Map<Int, Map<Int, List<LineRecord>>>,
+        empRecords: Map<Int, Pair<Map<Int, List<LineRecord>>, Map<Int, List<LineRecord>>>>,
         daysInMonth: Int,
     ): List<List<String>> {
         val rows = mutableListOf<List<String>>()
@@ -157,6 +168,18 @@ class SalaryCalculator {
         rows.add(headerRow.toList())
 
         empRecords.entries.forEach {
+            // Second line
+            // Empty name field
+            val row2 = mutableListOf<String>()
+            row2.add(EMPTY_CELL_DATA)
+            // Out times if they exist
+            (1..daysInMonth).forEach { dayOfTheMonth ->
+                val timings = it.value.second[dayOfTheMonth]
+                if (timings != null) row2.add(timings[0].timeRecorded.format(dateTimeWriteFormatter))
+                else row2.add(BLANK_CELL)
+            }
+            // End second line
+
             val row1 = mutableListOf<String>()
             // First Line
             // Emp no/name
@@ -166,25 +189,16 @@ class SalaryCalculator {
             row1.add(empNameNo)
             // In timings
             (1..daysInMonth).forEach { dayOfTheMonth ->
-                val timings = it.value[dayOfTheMonth]
+                val timings = it.value.first[dayOfTheMonth]
                 if (timings != null) row1.add(timings[0].timeRecorded.format(dateTimeWriteFormatter))
-                else row1.add(ABSENT)
-
+                else {
+                    if (row2[dayOfTheMonth] == BLANK_CELL) row1.add(ABSENT)
+                    else row1.add(BLANK_CELL)
+                }
             }
-            rows.add(row1.toList())
             // End first line
 
-            // Second line
-            // Empty name field
-            val row2 = mutableListOf<String>()
-            row2.add(EMPTY_CELL_DATA)
-            // Out times if they exist
-            (1..daysInMonth).forEach { dayOfTheMonth ->
-                val timings = it.value[dayOfTheMonth]
-                if (timings != null && timings.size >= 2) row2.add(timings[1].timeRecorded.format(dateTimeWriteFormatter))
-                else row2.add(" ")
-            }
-            // End second line
+            rows.add(row1.toList())
             rows.add(row2.toList())
         }
         return rows
@@ -202,7 +216,8 @@ class SalaryCalculator {
             val time = ZonedDateTime.from(dateTimeReadFormatter.parse(split[DATE_TIME_COL_NUM]))
             if (month != time.monthValue || year != time.year) return@forEachLine
             val empNo = Integer.parseInt(split[EMPLOYEE_ID_COL_NUM])
-            allLines.add(LineRecord(empNo, time))
+            val timeType = if (split[IN_OUT_COL_NUM] == IN_COL_RAW_DATA) TimeType.OUT else TimeType.IN
+            allLines.add(LineRecord(empNo, time, timeType))
         }
         return allLines.toList()
     }
@@ -244,6 +259,10 @@ class SalaryCalculator {
         const val RAW_FILE_SEPARATOR = "\t"
         const val DATE_TIME_COL_NUM = 9
         const val EMPLOYEE_ID_COL_NUM = 2
+        const val IN_OUT_COL_NUM = 6
+        const val IN_COL_RAW_DATA = "E"
+        const val VERSION = 2
+        const val BLANK_CELL = " "
         val invalidStartCharacters = setOf('#', 'N')
     }
 }
@@ -251,7 +270,7 @@ class SalaryCalculator {
 fun main(vararg args: String) {
     val sc = SalaryCalculator()
     val fileName = "/Users/romil/Downloads/megha hospital.TXT"
-    val month = 11
+    val month = 12
     val year = 2023
     sc.printDetailAttendanceRecord(
         fileName,
@@ -264,4 +283,10 @@ fun main(vararg args: String) {
 data class LineRecord(
     val empNo: Int,
     val timeRecorded: ZonedDateTime,
+    val timeType: TimeType,
 )
+
+enum class TimeType {
+    IN,
+    OUT
+}
