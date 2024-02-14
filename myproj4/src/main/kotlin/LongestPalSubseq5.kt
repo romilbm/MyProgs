@@ -1,40 +1,60 @@
 import org.assertj.core.api.Assertions.assertThat
-
 fun longestPalindrome(s: String): String {
-  if(s.length == 1) return s
+  if(s.length <= 1) return s
 
-  var ml = 1
-  var mp = s.substring(0,1)
-  var p1 = 0
-  while(p1 < s.length-1) {
-    var p2 = p1+1
-    if (s[p1] != s[p2]) {
-      p2++
+  var ctr = 0
+  var max = 0
+  var ans = ""
+
+  while (ctr<s.length) {
+    var (lf, rf) = helper(ctr, ctr, s)
+    var lenf = rf-lf+1
+
+    helper(ctr, ctr+1, s).let {
+      if ((it.second - it.first + 1) > lenf) {
+        lf = it.first
+        rf = it.second
+        lenf = rf-lf+1
+      }
     }
 
-    if (p2 == s.length || s[p1] != s[p2]) {
-      p1++
-      continue
+//    if (ctr+1 < s.length && s[ctr] == s[ctr+1]) {
+//      helper(ctr, ctr+1, s).let {
+//        if ((it.second - it.first + 1) > lenf) {
+//          lf = it.first
+//          rf = it.second
+//          lenf = rf-lf+1
+//        }
+//      }
+//    }
+
+    if (max < lenf) {
+      max = lenf
+      ans = s.substring(lf, rf+1)
     }
-
-    var tp1 = p1
-
-    while(tp1 >= 0 && p2 < s.length && s[tp1] == s[p2]) {
-      tp1--
-      p2++
-    }
-
-    val cpl = p2-tp1+1-2
-
-    if(cpl > ml) {
-      ml = cpl
-      mp = s.substring(Math.max(tp1,0), Math.min(p2+1, s.length))
-    }
-
-    p1++
+    ctr++
   }
 
-  return mp
+  return ans
+}
+
+
+
+private fun helper(
+  left: Int,
+  right: Int,
+  s: String,
+) : Pair<Int, Int> {
+  var l = left
+  var r = right
+  while(l>=0 && r<s.length && s[l] == s[r]) {
+    l--
+    r++
+  }
+  l++
+  r--
+
+  return Pair(l, r)
 }
 
 fun main() {
